@@ -4,21 +4,16 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 	"quiz-3-ezra-golang-sanbercode/controllers"
 	"quiz-3-ezra-golang-sanbercode/database"
 	"quiz-3-ezra-golang-sanbercode/middleware"
 	"quiz-3-ezra-golang-sanbercode/seeder"
 
+	"github.com/joho/godotenv"
+
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
-)
-
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "admin"
-	dbname   = "quiz_3"
 )
 
 var (
@@ -27,10 +22,18 @@ var (
 )
 
 func main() {
-	psqlInfo := fmt.Sprintf(`host=%s port=%d user=%s password=%s dbname=%s sslmode=disable`,
-		host, port, user, password, dbname,
-	)
+	err = godotenv.Load("config/.env")
+	if err != nil {
+		panic("Error loading .env file")
+	}
 
+	psqlInfo := fmt.Sprintf(`host=%s port=%s user=%s password=%s dbname=%s sslmode=disable`,
+		os.Getenv("PGHOST"),
+		os.Getenv("PGPORT"),
+		os.Getenv("PGUSER"),
+		os.Getenv("PGPASSWORD"),
+		os.Getenv("PGDATABASE"),
+	)
 	DB, err = sql.Open("postgres", psqlInfo)
 	defer DB.Close()
 	err = DB.Ping()
@@ -40,8 +43,12 @@ func main() {
 
 	database.DBMigrate(DB)
 
-	psqlSeeder := fmt.Sprintf(`host=%s port=%d user=%s password=%s dbname=%s sslmode=disable`,
-		host, port, user, password, dbname,
+	psqlSeeder := fmt.Sprintf(`host=%s port=%s user=%s password=%s dbname=%s sslmode=disable`,
+		os.Getenv("PGHOST"),
+		os.Getenv("PGPORT"),
+		os.Getenv("PGUSER"),
+		os.Getenv("PGPASSWORD"),
+		os.Getenv("PGDATABASE"),
 	)
 
 	DB, err = sql.Open("postgres", psqlSeeder)
